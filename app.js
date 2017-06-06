@@ -965,7 +965,6 @@ function getInfoSensor(ownerId) {
             let query = new Parse.Query(DataCollections);
             query.get(collection, {
               success: (result) => {
-                console.log(result.get("name"));
                 items.push({
                   title: result.get("name"),
                   subtitle: result.attributes.areas.length + " areas",
@@ -993,6 +992,8 @@ function getInfoSensor(ownerId) {
               }
             })
           }, this);
+          
+                console.log(items);
           sendGenericMessage(ownerId, items);
         } else {
           sendTextMessage(ownerId, "You haven't setup any devices yet.");
