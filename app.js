@@ -364,11 +364,11 @@ function receivedPostback(event) {
       case "VIEW_AREAS":
         viewListareas(senderID, payload.data);
         break;
-      case "VIEW_EACH":
-        viewInfoareas(senderID, payload.data);
-        break;
       case "VIEW_AREA":
         viewInfoarea(senderID, payload.data);
+        break;
+        case "VIEW_DEVICES":
+viewDevices(senderID, payload.data);
         break;
       default:
         sendTextMessage(senderID, "Sorry, there are some errors.");
@@ -869,53 +869,78 @@ function getWeather(ownerId) {
   sendTextMessage(ownerId, "In development process...")
 }
 
-function viewListareas(ownerId, data) {
-  var areas = [],
-    areaPages = [],
-    i = 0,
-    items = [];
-  data
-    .areas
-    .forEach(function (area) {
-      areas.push({
-        type: "postback",
-        title: area.name,
-        payload: JSON.stringify({
-          data: area,
-          actions: "VIEW_AREA"
-        })
-      })
-      i++;
-      if (i == 3) {
-        var rmlength = areaPages.length + 1;
-        areaPages.push({
-          title: "Page " + rmlength,
-          buttons: areas
-        });
-        areas = [];
-        i = 0;
-      }
-    }, this)
-  if (i < 3 && i != 0) {
-    var rmlength = areaPages.length + 1;
-    areaPages.push({
-      title: "Page " + rmlength,
-      buttons: areas
+function viewDevices(ownerId, data) {
+  var devices = data;
+
+  if (devices.length) {
+    let items = [];
+    let itemsProcessed = 0;
+    devices.forEach((device, index, array) => {
+      var query = new Parse.Query(Devices);
+      query.get(device, {
+        success: (result) => {
+          items.push({
+            title: "DeviceID: " + device + " (Last update: " + result.updatedAt + ")",
+            subtitle: "Temperature: " + parseInt(result.get("temperature")) + "ºC\r\nHumidity: " + parseInt(result.get("humidity")) + "%\r\nLocation: " + result.get("location").latitude + "," + result.get("location").longitude
+          })
+        },
+        error: (error) => {
+          console.log(error);
+          sendTextMessage(ownerId, "Sorry, there are some errors while getting device " + device + " data.");
+        }
+      }).then(() => {
+        itemsProcessed++;
+        if (itemsProcessed === array.length) {
+          console.log("done");
+          sendGenericMessage(ownerId, items);
+        }
+      });
     });
-    i = 0;
+
+  } else {
+    sendTextMessage(ownerId, "You haven't add any areas yet.");
   }
-  areaPages.forEach(function (areaPage) {
-    items.push(areaPage);
-    i++;
-    if (i % 10 == 0) {
-      sendGenericMessage(ownerId, items);
-      items = [];
-      i = 0;
-    }
-  }, this);
-  if (i < 10 && i != 0) {
-    sendGenericMessage(ownerId, items);
-    i = 0;
+}
+
+function viewListareas(ownerId, data) {
+  var areas = data;
+
+  if (areas.length) {
+    let items = [];
+    let itemsProcessed = 0;
+    areas.forEach((area, index, array) => {
+      let query = new Parse.Query(DataAreas);
+      query.get(area, {
+        success: (result) => {
+          items.push({
+            title: result.get("name"),
+            subtitle: result.attributes.devices.length + " areas",
+            buttons: [{
+              type: "postback",
+              title: "view devices info",
+              payload: JSON.stringify({
+                data: result.attributes.devices,
+                actions: "VIEW_DEVICES"
+              })
+            }]
+          })
+        },
+        error: (error) => {
+          items.push({
+            title: "Data error"
+          })
+        }
+      }).then(() => {
+        itemsProcessed++;
+        if (itemsProcessed === array.length) {
+          console.log("done");
+          sendGenericMessage(ownerId, items);
+        }
+      })
+    });
+
+  } else {
+    sendTextMessage(ownerId, "You haven't add any areas yet.");
   }
 }
 
@@ -971,21 +996,13 @@ function getInfoSensor(ownerId) {
                   subtitle: result.attributes.areas.length + " areas",
                   buttons: [{
                     type: "postback",
-                    title: "list all areas",
+                    title: "view areas",
                     payload: JSON.stringify({
                       data: result.attributes.areas,
                       actions: "VIEW_AREAS"
                     })
-                  }, {
-                    type: "postback",
-                    title: "info in each area",
-                    payload: JSON.stringify({
-                      data: result.attributes.areas,
-                      actions: "VIEW_EACH"
-                    })
                   }]
                 })
-                console.log(items);
               },
               error: (error) => {
                 items.push({
@@ -1002,7 +1019,7 @@ function getInfoSensor(ownerId) {
           });
 
         } else {
-          sendTextMessage(ownerId, "You haven't setup any devices yet.");
+          sendTextMessage(ownerId, "You haven't setup any collections yet.");
         }
       }
     },
