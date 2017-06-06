@@ -367,9 +367,6 @@ function receivedPostback(event) {
       case "VIEW_AREAS":
         viewListareas(senderID, payload.data);
         break;
-      case "VIEW_AREA":
-        viewInfoarea(senderID, payload.data);
-        break;
         case "VIEW_DEVICES":
 viewDevices(senderID, payload.data);
         break;
@@ -896,6 +893,7 @@ function viewDevices(ownerId, data) {
         if (itemsProcessed === array.length) {
           console.log("done");
           sendGenericMessage(ownerId, items);
+          return;
         }
       });
     });
@@ -917,7 +915,7 @@ function viewListareas(ownerId, data) {
         success: (result) => {
           items.push({
             title: result.get("name"),
-            subtitle: result.attributes.devices.length + " areas",
+            subtitle: result.attributes.devices.length + " devices",
             buttons: [{
               type: "postback",
               title: "view devices info",
@@ -938,43 +936,15 @@ function viewListareas(ownerId, data) {
         if (itemsProcessed === array.length) {
           console.log("done");
           sendGenericMessage(ownerId, items);
+          return;
         }
       })
+
     });
 
   } else {
     sendTextMessage(ownerId, "You haven't add any areas yet.");
   }
-}
-
-function viewInfoarea(ownerId, data) {
-  var items = [];
-  data.devices.forEach((device) => {
-    var query = new Parse.Query(Devices);
-    query.get(device, {
-      success: (result) => {
-        items.push({
-          title: "DeviceID: " + device + " (Last update: " + result.updatedAt + ")",
-          subtitle: "Temperature: " + parseInt(result.get("temperature")) + "ºC\r\nHumidity: " + parseInt(result.get("humidity")) + "%\r\nLocation: " + result.get("location").latitude + "," + result.get("location").longitude
-        })
-      },
-      error: (error) => {
-        console.log(error);
-        sendTextMessage(ownerId, "Sorry, there are some errors while getting device " + device + " data.");
-      }
-    });
-  })
-  setTimeout(function () {
-    sendGenericMessage(ownerId, items)
-  }, 2000);
-}
-
-function viewInfoareas(ownerId, data) {
-
-  setTimeout(function () {
-    sendGenericMessage(ownerId, items)
-  }, 700);
-
 }
 
 function getInfoSensor(ownerId) {
@@ -1017,6 +987,7 @@ function getInfoSensor(ownerId) {
               if (itemsProcessed === array.length) {
                 console.log("done");
                 sendGenericMessage(ownerId, items);
+                return;
               }
             })
           });
