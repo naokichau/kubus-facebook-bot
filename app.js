@@ -953,7 +953,7 @@ function getInfoSensor(ownerId) {
   var query = new Parse.Query(Users);
   query.equalTo("facebookId", ownerId);
   query.find({
-    success: function (results) {
+    success: (results)=> {
       if (results.length == 0) {
         sendTextMessage(ownerId, "Your facebook account isn't linked with Kubus database yet. Please go to ... to link your account.");
       } else {
@@ -962,10 +962,10 @@ function getInfoSensor(ownerId) {
         if (collections.length) {
           var items = [];
           collections.forEach((collection)=> {
-  console.log(collection);
             let query = new Parse.Query(DataCollections);
             query.get(collection, {
               success: (result) => {
+                  console.log(collection);
                 items.push({
                   title: result.name,
                   subtitle: result.attributes.areas.length + " areas",
