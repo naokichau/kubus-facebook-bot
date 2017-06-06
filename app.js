@@ -431,9 +431,9 @@ function setGetInfoMessage() {
         locale: "default",
         composer_input_disabled: true,
         call_to_actions: [{
-          title: "View my places",
+          title: "View my collections",
           type: "postback",
-          payload: "VIEW_ALL_PAYLOAD"
+          payload: "VIEW_COLLECTIONS_PAYLOAD"
         }, {
           title: "Get weather forecast",
           type: "postback",
