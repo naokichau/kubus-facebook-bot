@@ -949,21 +949,7 @@ function viewInfoareas(ownerId, data) {
 
 }
 
-function getInfoSensor(ownerId) {
-  var query = new Parse.Query(Users);
-  query.equalTo("facebookId", ownerId);
-  query.find({
-    success: (results)=> {
-      if (results.length == 0) {
-        sendTextMessage(ownerId, "Your facebook account isn't linked with Kubus database yet. Please go to ... to link your account.");
-      } else {
-        var collections = results[0].attributes.collections;
-
-        if (collections.length) {
-          let items = [];
-          let requests = collections.reduce((promiseChain,collection)=> {
-             return promiseChain.then(() => new Promise((resolve) => {
-(collection,cb)=>{
+function getCollection(collection,items,cb){
               let query = new Parse.Query(DataCollections);
             query.get(collection, {
               success: (result) => {
@@ -986,20 +972,36 @@ function getInfoSensor(ownerId) {
                     })
                   }]
                 })
+                 cb(items);
               },
               error: (error)=> {
                 items.push({
                   title: "Data error"
                 })
+                 cb(items);
               }
-            }).then(()=>{
-                 cb();
             })
 }
-    }));
-}, Promise.resolve());
 
- requests.then(() => {
+function getInfoSensor(ownerId) {
+  var query = new Parse.Query(Users);
+  query.equalTo("facebookId", ownerId);
+  query.find({
+    success: (results)=> {
+      if (results.length == 0) {
+        sendTextMessage(ownerId, "Your facebook account isn't linked with Kubus database yet. Please go to ... to link your account.");
+      } else {
+        var collections = results[0].attributes.collections;
+
+        if (collections.length) {
+          let items = [];
+          let requests = collections.reduce((promiseChain,collection)=> {
+             return promiseChain.then(() => new Promise((resolve) => {
+getCollection(collection,items,resolve)
+    }));
+}, Promise.resolve(items));
+
+ requests.then((items) => {
     console.log("done");
         sendGenericMessage(ownerId, items);
   });
