@@ -368,7 +368,7 @@ function receivedPostback(event) {
         viewListareas(senderID, payload.data);
         break;
         case "VIEW_DEVICES":
-viewDevices(senderID, payload.data);
+        viewDevices(senderID, payload.data);
         break;
       default:
         sendTextMessage(senderID, "Sorry, there are some errors.");
@@ -891,7 +891,7 @@ function viewDevices(ownerId, data) {
       }).then(() => {
         itemsProcessed++;
         if (itemsProcessed === array.length) {
-          console.log("done",array.length);
+          console.log("done" + array.length);
           sendGenericMessage(ownerId, items);
           return;
         }
@@ -934,7 +934,7 @@ function viewListareas(ownerId, data) {
       }).then(() => {
         itemsProcessed++;
         if (itemsProcessed == array.length) {
-          console.log("done",array.length);
+          console.log("done" + array.length);
           sendGenericMessage(ownerId, items);
           return;
         }
