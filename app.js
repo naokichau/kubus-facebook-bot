@@ -374,7 +374,6 @@ function receivedPostback(event) {
         sendTextMessage(senderID, "Sorry, there are some errors.");
         break;
     }
-    facebookId
   }
   // The 'payload' param is a developer-defined field which is set in a postback
   // button for Structured Messages.
