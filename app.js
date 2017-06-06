@@ -950,7 +950,6 @@ function viewInfoareas(ownerId, data) {
 }
 
 function getInfoSensor(ownerId) {
-  console.log("test");
   var query = new Parse.Query(Users);
   query.equalTo("facebookId", ownerId);
   query.find({
@@ -963,6 +962,7 @@ function getInfoSensor(ownerId) {
         if (collections.length) {
           var items = [];
           collections.forEach((collection)=> {
+  console.log(collection);
             let query = new Parse.Query(DataCollections);
             query.get(collection, {
               success: (result) => {
