@@ -963,12 +963,13 @@ function getInfoSensor(ownerId) {
           let items = [];
           let requests = collections.reduce((promiseChain,collection)=> {
              return promiseChain.then(() => new Promise((resolve) => {
-            let query = new Parse.Query(DataCollections);
+(collection,cb)=>{
+              let query = new Parse.Query(DataCollections);
             query.get(collection, {
               success: (result) => {
                 items.push({
                   title: result.get("name"),
-                  subtitle: result.attributes.areas.length + " areas",
+                  subtitle: result.atitemstributes.areas.length + " areas",
                   buttons: [{
                     type: "postback",
                     title: "list all areas",
@@ -985,14 +986,16 @@ function getInfoSensor(ownerId) {
                     })
                   }]
                 })
-                console.log(items);
               },
               error: (error)=> {
                 items.push({
                   title: "Data error"
                 })
               }
+            }).then(()=>{
+                 cb();
             })
+}
     }));
 }, Promise.resolve());
 
