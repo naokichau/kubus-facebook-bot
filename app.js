@@ -21,7 +21,9 @@ const bodyParser = require('body-parser'),
 var app = express();
 app.set('port', process.env.PORT || 5000);
 app.set('view engine', 'ejs');
-app.use(bodyParser.json({verify: verifyRequestSignature}));
+app.use(bodyParser.json({
+  verify: verifyRequestSignature
+}));
 app.use(express.static('public'));
 
 /*
@@ -31,25 +33,25 @@ app.use(express.static('public'));
  */
 
 // App Secret can be retrieved from the App Dashboard
-const APP_SECRET = (process.env.MESSENGER_APP_SECRET)
-  ? process.env.MESSENGER_APP_SECRET
-  : config.appSecret;
+const APP_SECRET = (process.env.MESSENGER_APP_SECRET) ?
+  process.env.MESSENGER_APP_SECRET :
+  config.appSecret;
 
 // Arbitrary value used to validate a webhook
-const VALIDATION_TOKEN = (process.env.MESSENGER_VALIDATION_TOKEN)
-  ? (process.env.MESSENGER_VALIDATION_TOKEN)
-  : config.validationToken;
+const VALIDATION_TOKEN = (process.env.MESSENGER_VALIDATION_TOKEN) ?
+  (process.env.MESSENGER_VALIDATION_TOKEN) :
+  config.validationToken;
 
 // Generate a page access token for your page from the App Dashboard
-const PAGE_ACCESS_TOKEN = (process.env.MESSENGER_PAGE_ACCESS_TOKEN)
-  ? (process.env.MESSENGER_PAGE_ACCESS_TOKEN)
-  : config.pageAccessToken;
+const PAGE_ACCESS_TOKEN = (process.env.MESSENGER_PAGE_ACCESS_TOKEN) ?
+  (process.env.MESSENGER_PAGE_ACCESS_TOKEN) :
+  config.pageAccessToken;
 
 // URL where the app is running (include protocol). Used to point to scripts and
 // assets located at this address.
-const SERVER_URL = (process.env.SERVER_URL)
-  ? (process.env.SERVER_URL)
-  : config.serverURL;
+const SERVER_URL = (process.env.SERVER_URL) ?
+  (process.env.SERVER_URL) :
+  config.serverURL;
 
 if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
   console.error("Missing config values");
@@ -203,8 +205,8 @@ function receivedAuthentication(event) {
   var passThroughParam = event.optin.ref;
 
   console.log("Received authentication for user %d and page %d with pass through param '%s' at " +
-      "%d",
-  senderID, recipientID, passThroughParam, timeOfAuth);
+    "%d",
+    senderID, recipientID, passThroughParam, timeOfAuth);
 
   // When an authentication is received, we'll send a message back to the sender
   // to let them know it was successful.
@@ -326,28 +328,27 @@ function receivedPostback(event) {
             access_token: PAGE_ACCESS_TOKEN
           },
           method: 'GET'
-
         }, function (error, response, body) {
           senderNAME = JSON.parse(body)
           if (!error && response.statusCode == 200) {} else {
             console.error("Failed calling API", response.statusCode, response.statusMessage, body.error);
           }
           setGetInfoMessage();
-          sendTextMessage(senderID, "Hi, " + senderNAME.first_name + " connect your kubus on (classified) to start monitor your house. ");
+          sendTextMessage(senderID, "Hi, " + senderNAME.first_name + " connect your kubus on (classified) to start monitor your environment. ");
         });
         break;
-      case "VIEW_ALL_PAYLOAD":
+      case "VIEW_COLLECTIONS_PAYLOAD":
         getInfoSensor(senderID);
         break;
       case "VIEW_WEATHER_PAYLOAD":
-        getWeather(senderID)
-        // sendTextMessage(senderID, "In development feature");
+        //getWeather(senderID)
+        sendTextMessage(senderID, "Work in progress...");
         break;
       case "VIEW_WEATHER_NOTI_PAYLOAD":
-        sendTextMessage(senderID, "In development feature");
+        sendTextMessage(senderID, "Work in progress...");
         break;
       case "VIEW_ABOUT_PAYLOAD":
-        sendTextMessage(senderID, "Work in progress..");
+        sendTextMessage(senderID, "v0.5 kubus messenger chat bot");
         break;
       default:
         sendTextMessage(senderID, "Sorry, there are some errors.");
@@ -357,19 +358,20 @@ function receivedPostback(event) {
     payload = JSON.parse(payload);
     console.log(payload.actions);
     switch (payload.actions) {
-      case "VIEW_ROOMS":
-        viewListRooms(senderID, payload.data);
+      case "VIEW_AREAS":
+        viewListareas(senderID, payload.data);
         break;
       case "VIEW_EACH":
-        viewInfoRooms(senderID, payload.data);
+        viewInfoareas(senderID, payload.data);
         break;
-      case "VIEW_ROOM":
-      viewInfoRoom(senderID,payload.data);
-      break;
+      case "VIEW_AREA":
+        viewInfoarea(senderID, payload.data);
+        break;
       default:
         sendTextMessage(senderID, "Sorry, there are some errors.");
         break;
     }
+    facebookId
   }
   // The 'payload' param is a developer-defined field which is set in a postback
   // button for Structured Messages.
@@ -422,37 +424,31 @@ function setGetInfoMessage() {
     },
     method: 'POST',
     json: {
-      persistent_menu: [
-        {
-          locale: "default",
-          composer_input_disabled: true,
-          call_to_actions: [
-            {
-              title: "View my places",
-              type: "postback",
-              payload: "VIEW_ALL_PAYLOAD"
-            }, {
-              title: "Get weather forecast",
-              type: "postback",
-              payload: "VIEW_WEATHER_PAYLOAD"
-            }, {
-              title: "More",
-              type: "nested",
-              call_to_actions: [
-                {
-                  title: "Weather notification",
-                  type: "postback",
-                  payload: "VIEW_WEATHER_NOTI_PAYLOAD"
-                }, {
-                  title: "About",
-                  type: "postback",
-                  payload: "VIEW_ABOUT_PAYLOAD"
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      persistent_menu: [{
+        locale: "default",
+        composer_input_disabled: true,
+        call_to_actions: [{
+          title: "View my places",
+          type: "postback",
+          payload: "VIEW_ALL_PAYLOAD"
+        }, {
+          title: "Get weather forecast",
+          type: "postback",
+          payload: "VIEW_WEATHER_PAYLOAD"
+        }, {
+          title: "More",
+          type: "nested",
+          call_to_actions: [{
+            title: "Weather notification",
+            type: "postback",
+            payload: "VIEW_WEATHER_NOTI_PAYLOAD"
+          }, {
+            title: "About",
+            type: "postback",
+            payload: "VIEW_ABOUT_PAYLOAD"
+          }]
+        }]
+      }]
     }
   }, function (error, response, body) {});
 }
@@ -548,7 +544,7 @@ function sendVideoMessage(recipientId) {
  * Send a file using the Send API.
  *
  */
-function sendFileMessage(recipientId,fileLink) {
+function sendFileMessage(recipientId, fileLink) {
   var messageData = {
     recipient: {
       id: recipientId
@@ -599,21 +595,19 @@ function sendButtonMessage(recipientId) {
         payload: {
           template_type: "button",
           text: "This is test text",
-          buttons: [
-            {
-              type: "web_url",
-              url: "https://www.oculus.com/en-us/rift/",
-              title: "Open Web URL"
-            }, {
-              type: "postback",
-              title: "Trigger Postback",
-              payload: "DEVELOPER_DEFINED_PAYLOAD"
-            }, {
-              type: "phone_number",
-              title: "Call Phone Number",
-              payload: "+16505551234"
-            }
-          ]
+          buttons: [{
+            type: "web_url",
+            url: "https://www.oculus.com/en-us/rift/",
+            title: "Open Web URL"
+          }, {
+            type: "postback",
+            title: "Trigger Postback",
+            payload: "DEVELOPER_DEFINED_PAYLOAD"
+          }, {
+            type: "phone_number",
+            title: "Call Phone Number",
+            payload: "+16505551234"
+          }]
         }
       }
     }
@@ -686,23 +680,21 @@ function sendReceiptMessage(recipientId) {
           currency: "USD",
           payment_method: "Visa 1234",
           timestamp: "1428444852",
-          elements: [
-            {
-              title: "Oculus Rift",
-              subtitle: "Includes: headset, sensor, remote",
-              quantity: 1,
-              price: 599.00,
-              currency: "USD",
-              image_url: SERVER_URL + "/assets/riftsq.png"
-            }, {
-              title: "Samsung Gear VR",
-              subtitle: "Frost White",
-              quantity: 1,
-              price: 99.99,
-              currency: "USD",
-              image_url: SERVER_URL + "/assets/gearvrsq.png"
-            }
-          ],
+          elements: [{
+            title: "Oculus Rift",
+            subtitle: "Includes: headset, sensor, remote",
+            quantity: 1,
+            price: 599.00,
+            currency: "USD",
+            image_url: SERVER_URL + "/assets/riftsq.png"
+          }, {
+            title: "Samsung Gear VR",
+            subtitle: "Frost White",
+            quantity: 1,
+            price: 99.99,
+            currency: "USD",
+            image_url: SERVER_URL + "/assets/gearvrsq.png"
+          }],
           address: {
             street_1: "1 Hacker Way",
             street_2: "",
@@ -717,15 +709,13 @@ function sendReceiptMessage(recipientId) {
             total_tax: 57.67,
             total_cost: 626.66
           },
-          adjustments: [
-            {
-              name: "New Customer Discount",
-              amount: -50
-            }, {
-              name: "$100 Off Coupon",
-              amount: -100
-            }
-          ]
+          adjustments: [{
+            name: "New Customer Discount",
+            amount: -50
+          }, {
+            name: "$100 Off Coupon",
+            amount: -100
+          }]
         }
       }
     }
@@ -745,21 +735,19 @@ function sendQuickReply(recipientId) {
     },
     message: {
       text: "What's your favorite movie genre?",
-      quick_replies: [
-        {
-          "content_type": "text",
-          "title": "Action",
-          "payload": "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_ACTION"
-        }, {
-          "content_type": "text",
-          "title": "Comedy",
-          "payload": "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_COMEDY"
-        }, {
-          "content_type": "text",
-          "title": "Drama",
-          "payload": "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_DRAMA"
-        }
-      ]
+      quick_replies: [{
+        "content_type": "text",
+        "title": "Action",
+        "payload": "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_ACTION"
+      }, {
+        "content_type": "text",
+        "title": "Comedy",
+        "payload": "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_COMEDY"
+      }, {
+        "content_type": "text",
+        "title": "Drama",
+        "payload": "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_DRAMA"
+      }]
     }
   };
 
@@ -832,12 +820,10 @@ function sendAccountLinking(recipientId) {
         payload: {
           template_type: "button",
           text: "Welcome. Link your account.",
-          buttons: [
-            {
-              type: "account_link",
-              url: SERVER_URL + "/authorize"
-            }
-          ]
+          buttons: [{
+            type: "account_link",
+            url: SERVER_URL + "/authorize"
+          }]
         }
       }
     }
@@ -880,40 +866,43 @@ function getWeather(ownerId) {
   sendTextMessage(ownerId, "In development process...")
 }
 
-function viewListRooms(ownerId, data) {
-  var rooms = [],
-    roomPages = [],
+function viewListareas(ownerId, data) {
+  var areas = [],
+    areaPages = [],
     i = 0,
     items = [];
   data
-    .rooms
-    .forEach(function (room) {
-      rooms.push({
+    .areas
+    .forEach(function (area) {
+      areas.push({
         type: "postback",
-        title: room.name,
-        payload: JSON.stringify({data: room, actions: "VIEW_ROOM"})
+        title: area.name,
+        payload: JSON.stringify({
+          data: area,
+          actions: "VIEW_AREA"
+        })
       })
       i++;
       if (i == 3) {
-        var rmlength = roomPages.length + 1;
-        roomPages.push({
+        var rmlength = areaPages.length + 1;
+        areaPages.push({
           title: "Page " + rmlength,
-          buttons: rooms
+          buttons: areas
         });
-        rooms = [];
+        areas = [];
         i = 0;
       }
     }, this)
   if (i < 3 && i != 0) {
-    var rmlength = roomPages.length + 1;
-    roomPages.push({
+    var rmlength = areaPages.length + 1;
+    areaPages.push({
       title: "Page " + rmlength,
-      buttons: rooms
+      buttons: areas
     });
     i = 0;
   }
-  roomPages.forEach(function (roomPage) {
-    items.push(roomPage);
+  areaPages.forEach(function (areaPage) {
+    items.push(areaPage);
     i++;
     if (i % 10 == 0) {
       sendGenericMessage(ownerId, items);
@@ -926,28 +915,30 @@ function viewListRooms(ownerId, data) {
     i = 0;
   }
 }
-function viewInfoRoom(ownerId, data) {
+
+function viewInfoarea(ownerId, data) {
   var items = [];
-data.devices.forEach((device)=> {
-      var query = new Parse.Query(Devices);
-      query.get(device, {
-        success: (result) =>{
-          items.push({
-            title: "DeviceID: " + device + " (Last update: " + result.updatedAt + ")",
-            subtitle: "Temperature: " + parseInt(result.get("temperature")) + "ºC\r\nHumidity: " + parseInt(result.get("humidity")) + "%\r\nLocation: " + result.get("location").latitude +","+  result.get("location").longitude 
-          })
-        },
-        error: (error) =>{
-          console.log(error);
-          sendTextMessage(ownerId, "Sorry, there are some errors while getting device " + device + " data.");
-        }
-      });
-})
- setTimeout(function () {
+  data.devices.forEach((device) => {
+    var query = new Parse.Query(Devices);
+    query.get(device, {
+      success: (result) => {
+        items.push({
+          title: "DeviceID: " + device + " (Last update: " + result.updatedAt + ")",
+          subtitle: "Temperature: " + parseInt(result.get("temperature")) + "ºC\r\nHumidity: " + parseInt(result.get("humidity")) + "%\r\nLocation: " + result.get("location").latitude + "," + result.get("location").longitude
+        })
+      },
+      error: (error) => {
+        console.log(error);
+        sendTextMessage(ownerId, "Sorry, there are some errors while getting device " + device + " data.");
+      }
+    });
+  })
+  setTimeout(function () {
     sendGenericMessage(ownerId, items)
   }, 2000);
 }
-function viewInfoRooms(ownerId, data) {
+
+function viewInfoareas(ownerId, data) {
 
   setTimeout(function () {
     sendGenericMessage(ownerId, items)
@@ -962,37 +953,47 @@ function getInfoSensor(ownerId) {
   query.find({
     success: function (results) {
       if (results.length == 0) {
-        sendTextMessage(ownerId, "Your facebook account isn't linked yet. Please go to ... to link your account.");
+        sendTextMessage(ownerId, "Your facebook account isn't linked with Kubus database yet. Please go to ... to link your account.");
       } else {
-        var places = results[0].attributes.places;
-        if (places.length) {
+        var collections = results[0].attributes.collections;
+
+        if (collections.length) {
           var items = [];
-          places.forEach(function (place) {
-            console.log(place);
-            items.push({
-              title: place.place,
-              subtitle: "There are " + place.rooms.length + " rooms consist of " + place.totalDevices + " devices",
-              buttons: [
-                {
-                  type: "postback",
-                  title: "list all rooms",
-                  payload: JSON.stringify({data: place, actions: "VIEW_ROOMS"})
-                }, {
-                  type: "postback",
-                  title: "info in each room",
-                  payload: JSON.stringify({data: place, actions: "VIEW_EACH"})
-                }
-              ]
+          collections.forEach(function (collection) {
+            let query = new Parse.Query(DataCollections);
+            query.get(collection, {
+              success: (result) => {
+                items.push({
+                  title: result.name,
+                  subtitle: result.attributes.areas.length + " areas",
+                  buttons: [{
+                    type: "postback",
+                    title: "list all areas",
+                    payload: JSON.stringify({
+                      data: place,
+                      actions: "VIEW_AREAS"
+                    })
+                  }, {
+                    type: "postback",
+                    title: "info in each area",
+                    payload: JSON.stringify({
+                      data: place,
+                      actions: "VIEW_EACH"
+                    })
+                  }]
+                })
+              },
+              error: function (error) {
+                items.push({
+                  title: "Data error"
+                })
+              }
             })
           }, this);
-          sendGenericMessage(ownerId, items)
-          //  subtitle: "Temperature: " + parseInt(device.attributes.temperature) + "ºC
-          // \r\nHumidity: " + parseInt(device.attributes.humidity) + "% \r\nLocation: "+
-          // device.attributes.location  +"\r\nLast update: " + device.updatedAt
+          sendGenericMessage(ownerId, items);
         } else {
           sendTextMessage(ownerId, "You haven't setup any devices yet.");
         }
-
       }
     },
     error: function (error) {
