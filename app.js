@@ -973,14 +973,14 @@ function getInfoSensor(ownerId) {
                     type: "postback",
                     title: "list all areas",
                     payload: JSON.stringify({
-                      data: place,
+                      data: result.attributes.areas,
                       actions: "VIEW_AREAS"
                     })
                   }, {
                     type: "postback",
                     title: "info in each area",
                     payload: JSON.stringify({
-                      data: place,
+                      data: result.attributes.areas,
                       actions: "VIEW_EACH"
                     })
                   }]
