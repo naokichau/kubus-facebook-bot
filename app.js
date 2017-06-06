@@ -984,6 +984,7 @@ function getInfoSensor(ownerId) {
                     })
                   }]
                 })
+                console.log(items);
               },
               error: (error)=> {
                 items.push({
@@ -993,7 +994,6 @@ function getInfoSensor(ownerId) {
             })
           }, this);
           
-                console.log(items);
           sendGenericMessage(ownerId, items);
         } else {
           sendTextMessage(ownerId, "You haven't setup any devices yet.");
