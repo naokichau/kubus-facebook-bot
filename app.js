@@ -961,7 +961,8 @@ function getInfoSensor(ownerId) {
 
         if (collections.length) {
           let items = [];
-          collections.forEach((collection)=> {
+          let requests = collections.map((collection)=> {
+             return new Promise((resolve) => {
             let query = new Parse.Query(DataCollections);
             query.get(collection, {
               success: (result) => {
@@ -992,9 +993,12 @@ function getInfoSensor(ownerId) {
                 })
               }
             })
-          }, ()=> {
-          sendGenericMessage(ownerId, items);
+    });
+          });
+  Promise.all(requests).then(() => {
+        sendGenericMessage(ownerId, items);
   });
+      
         } else {
           sendTextMessage(ownerId, "You haven't setup any devices yet.");
         }
