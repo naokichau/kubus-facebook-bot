@@ -965,7 +965,7 @@ function getInfoSensor(ownerId) {
             let query = new Parse.Query(DataCollections);
             query.get(collection, {
               success: (result) => {
-                console.log(result.attributes.areas);
+                console.log(result.get("name"));
                 items.push({
                   title: result.get("name"),
                   subtitle: result.attributes.areas.length + " areas",
