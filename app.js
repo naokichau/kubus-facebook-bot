@@ -949,13 +949,26 @@ function viewInfoareas(ownerId, data) {
 
 }
 
-function getCollection(collection,items,cb){
-              let query = new Parse.Query(DataCollections);
+function getInfoSensor(ownerId) {
+  var query = new Parse.Query(Users);
+  query.equalTo("facebookId", ownerId);
+  query.find({
+    success: (results) => {
+      if (results.length == 0) {
+        sendTextMessage(ownerId, "Your facebook account isn't linked with Kubus database yet. Please go to ... to link your account.");
+      } else {
+        var collections = results[0].attributes.collections;
+
+        if (collections.length) {
+          let items = [];
+          let itemsProcessed = 0;
+          let requests = collections.forEach((collection, index, array) => {
+            let query = new Parse.Query(DataCollections);
             query.get(collection, {
               success: (result) => {
                 items.push({
                   title: result.get("name"),
-                  subtitle: result.atitemstributes.areas.length + " areas",
+                  subtitle: result.attributes.areas.length + " areas",
                   buttons: [{
                     type: "postback",
                     title: "list all areas",
@@ -972,40 +985,22 @@ function getCollection(collection,items,cb){
                     })
                   }]
                 })
-                 cb(items);
+                console.log(items);
               },
-              error: (error)=> {
+              error: (error) => {
                 items.push({
                   title: "Data error"
                 })
-                 cb(items);
+              }
+            }).then(() => {
+              itemsProcessed++;
+              if (itemsProcessed === array.length) {
+                console.log("done");
+                sendGenericMessage(ownerId, items);
               }
             })
-}
+          });
 
-function getInfoSensor(ownerId) {
-  var query = new Parse.Query(Users);
-  query.equalTo("facebookId", ownerId);
-  query.find({
-    success: (results)=> {
-      if (results.length == 0) {
-        sendTextMessage(ownerId, "Your facebook account isn't linked with Kubus database yet. Please go to ... to link your account.");
-      } else {
-        var collections = results[0].attributes.collections;
-
-        if (collections.length) {
-          let items = [];
-          let requests = collections.reduce((promiseChain,collection)=> {
-             return promiseChain.then(() => new Promise((resolve) => {
-getCollection(collection,items,resolve)
-    }));
-}, Promise.resolve(items));
-
- requests.then((items) => {
-    console.log("done");
-        sendGenericMessage(ownerId, items);
-  });
-      
         } else {
           sendTextMessage(ownerId, "You haven't setup any devices yet.");
         }
