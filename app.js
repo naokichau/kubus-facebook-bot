@@ -962,7 +962,7 @@ function getInfoSensor(ownerId) {
         if (collections.length) {
           let items = [];
           let itemsProcessed = 0;
-          let requests = collections.forEach((collection, index, array) => {
+          collections.forEach((collection, index, array) => {
             let query = new Parse.Query(DataCollections);
             query.get(collection, {
               success: (result) => {
