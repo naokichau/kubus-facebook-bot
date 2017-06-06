@@ -961,8 +961,8 @@ function getInfoSensor(ownerId) {
 
         if (collections.length) {
           let items = [];
-          let requests = collections.map((collection)=> {
-             return new Promise((resolve) => {
+          let requests = collections.reduce((promiseChain,collection)=> {
+             return promiseChain.then(() => new Promise((resolve) => {
             let query = new Parse.Query(DataCollections);
             query.get(collection, {
               success: (result) => {
@@ -993,9 +993,10 @@ function getInfoSensor(ownerId) {
                 })
               }
             })
-    });
-          });
-  Promise.all(requests).then(() => {
+    }));
+}, Promise.resolve());
+
+ requests.then(() => {
     console.log("done");
         sendGenericMessage(ownerId, items);
   });
