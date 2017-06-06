@@ -962,7 +962,7 @@ function getInfoSensor(ownerId) {
 
         if (collections.length) {
           var items = [];
-          collections.forEach(function (collection) {
+          collections.forEach((collection)=> {
             let query = new Parse.Query(DataCollections);
             query.get(collection, {
               success: (result) => {
@@ -986,7 +986,7 @@ function getInfoSensor(ownerId) {
                   }]
                 })
               },
-              error: function (error) {
+              error: (error)=> {
                 items.push({
                   title: "Data error"
                 })
