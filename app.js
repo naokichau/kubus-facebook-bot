@@ -325,7 +325,7 @@ function receivedPostback(event) {
     switch (payload) {
       case "GET_STARTED_PAYLOAD":
         request({
-          uri: 'https://graph.facebook.com/v2.6/' + senderID,
+          uri: 'https://graph.facebook.com/v2.8/' + senderID,
           qs: {
             fields: 'first_name',
             access_token: PAGE_ACCESS_TOKEN
@@ -421,7 +421,7 @@ function receivedAccountLink(event) {
 
 function setGetInfoMessage() {
   request({
-    uri: 'https://graph.facebook.com/v2.6/me/messenger_profile',
+    uri: 'https://graph.facebook.com/v2.8/me/messenger_profile',
     qs: {
       access_token: PAGE_ACCESS_TOKEN
     },
@@ -842,7 +842,7 @@ function sendAccountLinking(recipientId) {
  */
 function callSendAPI(messageData) {
   request({
-    uri: 'https://graph.facebook.com/v2.6/me/messages',
+    uri: 'https://graph.facebook.com/v2.8/me/messages',
     qs: {
       access_token: PAGE_ACCESS_TOKEN
     },
