@@ -891,7 +891,7 @@ function viewDevices(ownerId, data) {
       }).then(() => {
         itemsProcessed++;
         if (itemsProcessed === array.length) {
-          console.log("done");
+          console.log("done",array.length);
           sendGenericMessage(ownerId, items);
           return;
         }
@@ -933,8 +933,8 @@ function viewListareas(ownerId, data) {
         }
       }).then(() => {
         itemsProcessed++;
-        if (itemsProcessed === array.length) {
-          console.log("done");
+        if (itemsProcessed == array.length) {
+          console.log("done",array.length);
           sendGenericMessage(ownerId, items);
           return;
         }
@@ -984,7 +984,7 @@ function getInfoSensor(ownerId) {
               }
             }).then(() => {
               itemsProcessed++;
-              if (itemsProcessed === array.length) {
+              if (itemsProcessed == array.length) {
                 console.log("done");
                 sendGenericMessage(ownerId, items);
                 return;
