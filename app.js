@@ -65,6 +65,9 @@ let Devices = Parse
 let Users = Parse
   .Object
   .extend("User");
+let DataCollections = Parse
+  .Object
+  .extend("collections");
 /*
  * Use your own validation token. Check that the token used in the Webhook
  * setup is the same token used here.
