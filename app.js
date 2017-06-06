@@ -960,7 +960,7 @@ function getInfoSensor(ownerId) {
         var collections = results[0].attributes.collections;
 
         if (collections.length) {
-          var items = [];
+          let items = [];
           collections.forEach((collection)=> {
             let query = new Parse.Query(DataCollections);
             query.get(collection, {
