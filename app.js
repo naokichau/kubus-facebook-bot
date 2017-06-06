@@ -992,9 +992,9 @@ function getInfoSensor(ownerId) {
                 })
               }
             })
-          }, this);
-          
+          }, ()=> {
           sendGenericMessage(ownerId, items);
+  });
         } else {
           sendTextMessage(ownerId, "You haven't setup any devices yet.");
         }
