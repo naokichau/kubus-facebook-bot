@@ -996,6 +996,7 @@ function getInfoSensor(ownerId) {
     });
           });
   Promise.all(requests).then(() => {
+    console.log("done");
         sendGenericMessage(ownerId, items);
   });
       
